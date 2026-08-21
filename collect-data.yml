@@ -1,0 +1,35 @@
+name: Collect Runway data
+
+on:
+  schedule:
+    # Runs every Monday at 09:00 UTC. Job postings and H1B filing data
+    # don't change fast enough to need more than weekly.
+    - cron: "0 9 * * 1"
+  workflow_dispatch: {} # lets you trigger a run manually from the Actions tab
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Collect live job postings
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: npm run collect-jobs
+
+      - name: Collect real H1B sponsor data
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: npm run collect-sponsors

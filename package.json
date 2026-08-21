@@ -1,0 +1,16 @@
+{
+  "name": "runway-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scheduled data collectors for Runway: pulls live job postings and real H1B sponsor filing data into Supabase.",
+  "type": "module",
+  "scripts": {
+    "collect-jobs": "node scripts/collect-jobs.js",
+    "collect-sponsors": "node scripts/collect-sponsors.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "cheerio": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
