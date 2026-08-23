@@ -2,9 +2,8 @@ name: Collect Runway data
 
 on:
   schedule:
-    # Runs every Monday at 09:00 UTC. Job postings and H1B filing data
-    # don't change fast enough to need more than weekly.
-    - cron: "0 9 * * 1"
+    # Runs every day at 09:00 UTC.
+    - cron: "0 9 * * *"
   workflow_dispatch: {} # lets you trigger a run manually from the Actions tab
 
 jobs:
