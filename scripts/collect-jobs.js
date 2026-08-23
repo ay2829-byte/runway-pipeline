@@ -30,88 +30,8 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-// ---------------------------------------------------------------------------
-// Greenhouse boards. Token is the slug in boards-api.greenhouse.io/v1/boards/{token}/jobs
-// ---------------------------------------------------------------------------
-const GREENHOUSE_BOARDS = [
-  "airbnb", "doordash", "robinhood", "coinbase", "stripe", "gitlab",
-  "figma", "notion", "asana", "discord", "plaid", "brex",
-  "dropbox", "docusign", "squarespace", "twilio", "datadog", "confluent",
-  "mongodb", "elastic", "cloudflare", "okta", "zendesk", "pinterest",
-  "reddit", "snap", "lyft", "instacart", "affirm", "chime", "wise",
-  "ramp", "mercury", "vercel", "netlify", "retool", "airtable", "webflow",
-  "gusto", "rippling", "deel", "remote", "benchling", "samsara", "gong",
-  "amplitude", "mixpanel", "segment", "sourcegraph", "scale",
-  "roblox", "unity", "snowflake", "databricks", "duolingo",
-  "grammarly", "vanta", "drata", "checkr", "lattice", "cultureamp",
-  "carta", "opendoor", "flexport", "faire", "attentive",
-  "clickhouse", "temporal", "render", "fivetran", "hex", "census",
-  "posthog", "loom", "calendly",
-  "asaptext", "brightwheel", "clari", "clio", "coalitioninc",
-  "cockroachlabs", "contentsquare", "coursera", "customerio", "degreed",
-  "docker", "earnin", "envoy", "figure", "flywire", "gemini",
-  "greenlightcard", "guideline", "homelight", "hopin", "iterable",
-  "june", "justworks", "kandji", "klaviyo", "lambdaschool",
-  "lucidmotors", "matterport", "nextroll", "oportun", "outreach",
-  "papaya-global", "pilot", "podium", "postman", "quizlet",
-  "recharge", "relativity", "roofstock", "rover", "sardine",
-  "seatgeek", "shipbob", "sisense", "sittercity", "smartrecruiters",
-  "snyk", "sprig", "streak", "superhuman", "talkdesk",
-  "the-farmers-dog", "toast", "underdogfantasy", "verkada", "vetster",
-  "whoop", "wyze", "zapier", "zocdoc",
-];
 
-// ---------------------------------------------------------------------------
-// Lever boards. Public API: api.lever.co/v0/postings/{token}?mode=json
-// ---------------------------------------------------------------------------
-const LEVER_BOARDS = [
-  "netflix", "anduril", "eventbrite", "yelp", "box", "sendgrid",
-  "patreon", "articulate", "betterup", "shipt",
-  "clearbit", "runwayml", "genies", "highspot", "narvar",
-  "outschool", "sofi", "tala", "wealthfront", "thumbtack", "nextdoor",
-];
-
-// ---------------------------------------------------------------------------
-// Ashby boards. Public API: api.ashbyhq.com/posting-api/job-board/{token}
-// A newer ATS than Greenhouse/Lever, so this list is less certain — these
-// are best-effort guesses at company slugs, not all verified. Same
-// graceful-failure handling applies: wrong ones just get skipped.
-// ---------------------------------------------------------------------------
-const ASHBY_BOARDS = [
-  "linear", "substack", "clay", "mercor", "replit", "watershed",
-  "modal", "cohere", "assemblyai", "opengov", "middesk",
-  "ramp", "notion", "vanta", "webflow", "retool", "deel",
-  "ironclad", "ledger", "perplexity-ai", "cursor", "descript",
-  "grafana-labs", "hightouch", "pave", "sardine", "airbyte",
-  "chronosphere", "dagster-labs", "braintrust-data", "common-room",
-];
-
-// ---------------------------------------------------------------------------
-// Workday boards. Unlike the three above, Workday has no simple "company
-// name as slug" pattern — each company's career site runs on a specific
-// server number (wd1, wd3, wd5...), tenant ID, and site name, none of
-// which are guessable from the company name. Getting one of these wrong
-// just returns zero results rather than an error, so this list only has a
-// couple of entries I'm reasonably confident in, plus instructions below
-// for adding more yourself — it only takes a minute per company.
-//
-// HOW TO FIND THESE VALUES FOR A NEW COMPANY:
-//   1. Open the company's careers page. If they use Workday, the page
-//      (or a redirect) will load a URL containing myworkdayjobs.com.
-//   2. Open browser dev tools (F12), go to the Network tab, reload the
-//      page, and filter for "jobs".
-//   3. Find the POST request to a URL shaped like:
-//      https://COMPANY.wd5.myworkdayjobs.com/wday/cxs/COMPANY/SITE/jobs
-//   4. From that URL: wdNumber = "wd5", tenant = "COMPANY" (right after
-//      https://), site = "SITE" (the segment right before "/jobs" —
-//      varies a lot, e.g. "External", "Careers", "External_Career_Site").
-// ---------------------------------------------------------------------------
-const WORKDAY_BOARDS = [
-  { company: "comcast", tenant: "comcast", wdNumber: "wd5", site: "Comcast_Careers", domain: "comcast.com" },
-  { company: "cisco", tenant: "cisco", wdNumber: "wd5", site: "Cisco_Careers", domain: "cisco.com" },
-  { company: "nike", tenant: "nike", wdNumber: "wd1", site: "nke", domain: "nike.com" },
-  { company: "salesforce", tenant: "salesforce", wdNumber: "wd12", site: "External_Career_Site", domain: "salesforce.com" },
-];
+import { GREENHOUSE_BOARDS, LEVER_BOARDS, ASHBY_BOARDS, WORKDAY_BOARDS } from "./company-list.js";
 
 // ---------------------------------------------------------------------------
 // US-location filtering. H1B only applies to US-based roles, so anything
