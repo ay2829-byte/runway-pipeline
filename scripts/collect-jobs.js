@@ -68,6 +68,13 @@ function stripHtml(html) {
   return (html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+// Caps how many postings any one company contributes. Without this, a
+// retail-heavy employer that posts the same role separately for every
+// store location (Comcast, Nike, and similar are exactly this shape) can
+// produce hundreds or thousands of near-duplicate listings and crowd out
+// every smaller company once the frontend's overall row limit is applied.
+const MAX_JOBS_PER_COMPANY = 20;
+
 async function fetchGreenhouseBoard(board) {
   const res = await fetch(
     `https://boards-api.greenhouse.io/v1/boards/${board}/jobs?content=true`
@@ -76,6 +83,7 @@ async function fetchGreenhouseBoard(board) {
   const data = await res.json();
   return (data.jobs || [])
     .filter((j) => isLikelyUS(j.location?.name))
+    .slice(0, MAX_JOBS_PER_COMPANY)
     .map((j) => ({
       id: `greenhouse:${board}:${j.id}`,
       company: board,
@@ -94,6 +102,7 @@ async function fetchLeverBoard(board) {
   if (!Array.isArray(data)) throw new Error("unexpected response shape");
   return data
     .filter((j) => isLikelyUS(j.categories?.location))
+    .slice(0, MAX_JOBS_PER_COMPANY)
     .map((j) => ({
       id: `lever:${board}:${j.id}`,
       company: board,
@@ -114,6 +123,7 @@ async function fetchAshbyBoard(board) {
   const jobs = data.jobs || [];
   return jobs
     .filter((j) => isLikelyUS(j.location) || j.isRemote)
+    .slice(0, MAX_JOBS_PER_COMPANY)
     .map((j) => ({
       id: `ashby:${board}:${j.id}`,
       company: board,
@@ -130,13 +140,14 @@ async function fetchWorkdayBoard({ company, tenant, wdNumber, site }) {
   const res = await fetch(`${base}/wday/cxs/${tenant}/${site}/jobs`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ appliedFacets: {}, limit: 20, offset: 0, searchText: "" }),
+    body: JSON.stringify({ appliedFacets: {}, limit: MAX_JOBS_PER_COMPANY, offset: 0, searchText: "" }),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   const postings = data.jobPostings || [];
   return postings
     .filter((j) => isLikelyUS(j.locationsText))
+    .slice(0, MAX_JOBS_PER_COMPANY)
     .map((j) => ({
       id: `workday:${tenant}:${j.bulletFields?.[0] || j.title}`,
       company,
@@ -181,8 +192,19 @@ async function main() {
   console.log(`\n${workingCount} of ${totalBoards} boards returned data.`);
 
   if (allJobs.length === 0) {
-    console.warn("No jobs collected from any board. Nothing to write.");
+    console.warn("No jobs collected from any board. Nothing to write, leaving existing data as-is.");
     return;
+  }
+
+  // Clear out old data before writing fresh results. Without this, upsert
+  // only ever adds or updates rows, it never removes ones that are no
+  // longer being collected — so closed postings linger forever, and (the
+  // bug that prompted this) old bulk data from before a per-company cap
+  // existed would never get cleaned up even after the cap was added.
+  const { error: deleteError } = await supabase.from("jobs").delete().neq("id", "");
+  if (deleteError) {
+    console.error("Failed to clear old jobs, aborting to avoid duplicating stale data:", deleteError.message);
+    process.exit(1);
   }
 
   const BATCH = 200;
