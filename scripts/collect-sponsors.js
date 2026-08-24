@@ -98,14 +98,27 @@ async function processCompany({ company, query, domain }) {
   const titleRows = parseTitleLines(titlesSection);
 
   if (titleRows.length > 0) {
-    const rows = titleRows.map((r) => ({
-      company,
-      company_query: query,
-      job_title: r.title,
-      lca_count: r.count,
-      median_salary: r.medianSalary,
-      updated_at: new Date().toISOString(),
-    }));
+    // De-duplicate by (company, job_title) before upserting. Without this,
+    // if the same title appears twice in a single scrape (overlapping
+    // parsed sections do happen), Postgres rejects the whole batch with
+    // "ON CONFLICT DO UPDATE command cannot affect row a second time" —
+    // it refuses to update the same row twice within one statement.
+    const dedupedMap = new Map();
+    for (const r of titleRows) {
+      const key = `${query}|${r.title}`;
+      const existing = dedupedMap.get(key);
+      if (!existing || r.count > existing.lca_count) {
+        dedupedMap.set(key, {
+          company,
+          company_query: query,
+          job_title: r.title,
+          lca_count: r.count,
+          median_salary: r.medianSalary,
+          updated_at: new Date().toISOString(),
+        });
+      }
+    }
+    const rows = Array.from(dedupedMap.values());
     const { error } = await supabase
       .from("sponsor_titles")
       .upsert(rows, { onConflict: "company_query,job_title" });
@@ -128,6 +141,12 @@ async function processCompany({ company, query, domain }) {
     return;
   }
 
+  // onConflict must target "company", not "company_query" — the actual
+  // unique constraint in supabase-schema.sql is on the company column.
+  // Using a column with no matching constraint makes Postgres reject
+  // every single write with "no unique or exclusion constraint matching
+  // the ON CONFLICT specification" — which is exactly what was happening,
+  // silently, for all 231 companies on every previous run.
   const { error: companyError } = await supabase.from("sponsor_companies").upsert(
     {
       company,
@@ -136,25 +155,31 @@ async function processCompany({ company, query, domain }) {
       total_lca_count: recentTotal,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: "company_query" }
+    { onConflict: "company" }
   );
   if (companyError) console.error(`${company} company upsert error:`, companyError.message);
 
   console.log(`${company}: FY24+25=${recentTotal} (2024=${total2024}, 2025=${total2025}), ${titleRows.length} distinct titles (all-time)`);
+
+  return !companyError; // whether the database actually accepted this write
 }
 
 async function main() {
   let ok = 0;
+  let dbErrors = 0;
   for (const entry of COMPANIES) {
     try {
-      await processCompany(entry);
-      ok++;
+      const wrote = await processCompany(entry);
+      if (wrote) ok++; else dbErrors++;
     } catch (err) {
       console.error(`${entry.company}: failed — ${err.message}`);
     }
     await sleep(RATE_LIMIT_MS);
   }
-  console.log(`\nDone. ${ok} of ${COMPANIES.length} companies processed successfully.`);
+  console.log(`\nDone. ${ok} of ${COMPANIES.length} companies actually written to the database.`);
+  if (dbErrors > 0) {
+    console.error(`${dbErrors} companies had a database write error — check the "upsert error" lines above.`);
+  }
 }
 
 main().catch((err) => {
