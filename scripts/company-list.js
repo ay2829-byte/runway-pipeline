@@ -37,6 +37,45 @@ export const GREENHOUSE_BOARDS = [
   "snyk", "sprig", "streak", "superhuman", "talkdesk",
   "the-farmers-dog", "toast", "underdogfantasy", "verkada", "vetster",
   "whoop", "wyze", "zapier", "zocdoc",
+  "1password", "abnormalsecurity", "airbyte", "algolia", "anduril",
+  "arctic-wolf", "arize-ai", "assemblyai", "atlan", "aurorasolar",
+  "axoni", "bilt", "bird", "blend", "bolt",
+  "branch", "brightline", "bubble", "buildkite", "bunq",
+  "cameo", "canva", "capchase", "cased", "cedar",
+  "cerebras", "chainalysis", "chargebee", "cimpress", "clearcover",
+  "clover-health", "clutter", "commure", "consensys", "corelogic",
+  "cover-genius", "cresta", "cribl", "crusoe-energy", "current",
+  "daily", "dandy", "dbt-labs", "decagon", "devoted-health",
+  "dialpad", "divvy-homes", "doma", "doximity", "eightsleep",
+  "epic-games", "everlaw", "eyeo", "faraday", "fireblocks",
+  "flock-safety", "forter", "frontapp", "frontdoor", "gametime",
+  "gemini-trust", "geniushub", "getaround", "gitbook", "glean",
+  "goodleap", "grafana", "hebbia", "hellosign", "hinge-health",
+  "honeycomb", "hopper", "human-interest", "iheartmedia", "imperva",
+  "included-health", "insider-intelligence", "invisible", "iterable-inc", "jerry",
+  "jumio", "kalepa", "keeper-security", "khan-academy", "kikoff",
+  "labelbox", "lacework", "landing", "leapyear", "lemonade",
+  "level", "lightmatter", "lightspeed", "linktree", "livongo",
+  "lob", "lucid-software", "luminai", "lyra-health", "magic-eden",
+  "mainstreet", "mark43", "matician", "maven-clinic", "medable",
+  "mercari", "meter", "mindbody", "monte-carlo-data", "moveworks",
+  "narmi", "netskope", "newfront", "nomi-health", "notarize",
+  "nova-credit", "nuna", "octane", "orbital-insight", "oscar-health",
+  "outschool-inc", "owner", "papa", "patch", "peloton",
+  "personio", "pilot-com", "pinwheel", "podium-inc", "prelude",
+  "prezi", "prosperworks", "pulley", "quorum", "railsr",
+  "reforge", "relay-payments", "revolut", "riverside", "roon",
+  "rula", "sana-labs", "savvy", "seismic", "sentilink",
+  "shield-ai", "sigma-computing", "signifyd", "sisu", "skydio",
+  "smallpdf", "sondermind", "sourcepoint", "spring-health", "spruce",
+  "standard-cognition", "starburst-data", "statsig", "stord", "storyblocks",
+  "strive-health", "sunbit", "sword-health", "synapse", "synthego",
+  "teachable", "tempus-labs", "tesorio", "thatgamecompany", "thoughtspot",
+  "tigergraph", "titan-invest", "tomo", "tovala", "truveta",
+  "tulip", "turing", "turo", "typeface", "upgrade",
+  "vanmoof", "vention", "vice-media", "virtuous", "vivun",
+  "voleon", "wave-hq", "weride", "whatnot", "wonderschool",
+  "workato", "xero", "yipitdata", "zeitview", "zenoti",
 ];
 
 export const LEVER_BOARDS = [
@@ -44,6 +83,12 @@ export const LEVER_BOARDS = [
   "patreon", "articulate", "betterup", "shipt",
   "clearbit", "runwayml", "genies", "highspot", "narvar",
   "outschool", "sofi", "tala", "wealthfront", "thumbtack", "nextdoor",
+  "buzzfeed", "clutch", "collective-health", "cortex", "dstillery",
+  "eventbase", "grove-collaborative", "handshake", "hopper-inc", "hubble",
+  "iheart", "jerry-ai", "kickstarter", "letgo", "lulus",
+  "medallia", "myfitnesspal", "nextdoor-inc", "opencare", "peerspace",
+  "picsart", "quizlet-inc", "sharethrough", "sittercity-inc", "sunrun",
+  "tovala-inc", "upstart", "vsco", "wag", "zeta-global",
 ];
 
 export const ASHBY_BOARDS = [
@@ -53,6 +98,13 @@ export const ASHBY_BOARDS = [
   "ironclad", "ledger", "perplexity-ai", "cursor", "descript",
   "grafana-labs", "hightouch", "pave", "sardine", "airbyte",
   "chronosphere", "dagster-labs", "braintrust-data", "common-room",
+  "abridge", "arc", "baseten", "cartwheel", "clado",
+  "coder", "decagon-ai", "deepgram", "eleven-labs", "fal",
+  "gamma", "harvey-ai", "imprint", "instabase", "kalshi",
+  "legora", "lovable", "luminai-inc", "mainstay", "n8n",
+  "observe-ai", "polytomic", "resend", "rows", "runreveal",
+  "sierra", "supabase", "unstructured", "vanta-inc", "vellum",
+  "warp", "writer", "zed-industries",
 ];
 
 // Workday needs three exact values per company (not guessable from the
@@ -62,6 +114,7 @@ export const WORKDAY_BOARDS = [
   { company: "cisco", tenant: "cisco", wdNumber: "wd5", site: "Cisco_Careers", domain: "cisco.com" },
   { company: "nike", tenant: "nike", wdNumber: "wd1", site: "nke", domain: "nike.com" },
   { company: "salesforce", tenant: "salesforce", wdNumber: "wd12", site: "External_Career_Site", domain: "salesforce.com" },
+  { company: "qualcomm", tenant: "qualcomm", wdNumber: "wd12", site: "External", domain: "qualcomm.com" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -85,6 +138,7 @@ const QUERY_OVERRIDES = {
   sofi: "social finance inc",
   wealthfront: "wealthfront corporation",
   elastic: "elasticsearch inc",
+  qualcomm: "qualcomm technologies inc",
 };
 
 // ---------------------------------------------------------------------------
